@@ -24,6 +24,7 @@
                             <th>#</th>
                             <th>Name</th>
                             <th>Added</th>
+                            <th>Score</th>
                         </thead>
                         <tbody>
                             <?php $row = 1; foreach($players as $player): ?>
@@ -31,6 +32,7 @@
                                     <td><?=$row?></td>
                                     <td><?=$player['player_name']?></td>
                                     <td><small><?=normal_date($player['player_created'])?></small></td>
+                                    <td><?=$profile->player_score($player['player_id'])?></td>
                                 </tr>
                             <?php $row++; endforeach; ?>
                         </tbody>
@@ -103,9 +105,17 @@
                                     <tr>
                                         <td><?=$round['round_number']?></td>
                                         <td><?=normal_date(current_date())?></td>
-                                        <td><span class="badge badge-danger"><?=$round['round_status']?></span></td>
                                         <td>
-                                            <a href="dashboard/round?round=<?=$round['round_id']?>" class="btn btn-sm btn-warning">Go to round <i class="fa fa-arrow-right"></i></a>
+                                            <h6>
+                                                <?php if($round['round_status'] === 'A'): ?>
+                                                    <span class="badge badge-danger">Active</span>
+                                                <?php else: ?>
+                                                    <span class="badge badge-secondary">Ended</span>
+                                                <?php endif; ?>
+                                            </h6>
+                                        </td>
+                                        <td>
+                                            <a href="<?=URL?>/dashboard/round?round=<?=$round['round_id']?>" class="btn btn-sm btn-<?=($round['round_status']==='A')?'warning':'secondary'?>">Go to <?= ($round['round_status'] === 'A') ? "round" : "result"?> <i class="fa fa-arrow-right"></i></a>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>

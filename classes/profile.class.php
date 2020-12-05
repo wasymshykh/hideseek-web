@@ -167,7 +167,73 @@ class Profile
     }
 
     public function get_round_by ($column, $value, $multiple = false)  {
-        $s = $this->db->prepare("SELECT * FROM `rounds` WHERE `$column` = :v");
+        $s = $this->db->prepare("SELECT * FROM `rounds` r JOIN `games` g ON r.round_game_id = g.game_id JOIN `teams` t ON g.game_team_id = t.team_id WHERE `$column` = :v");
+        $s->bindParam(":v", $value);
+        if ($s->execute()) {
+            if ($multiple) {
+                return $s->fetchAll();
+            }
+            return $s->fetch();
+        }
+        return false;
+    }
+
+    public function player_found($result_id, $results)
+    {
+        // calculating position
+        $position = count($results);
+        $available = false;
+        foreach ($results as $result) {
+            if ($result['result_id'] === $result_id) {
+                
+                if ($result['result_found'] === 'Y') {
+                    return $this->result(false, "You already found this player.");
+                }
+                $available = true;
+            } 
+            if ($result['result_found'] === 'Y') {
+                $position--;
+            }
+        }
+
+        if (!$available) {
+            return $this->result(false, "Player is not available.");
+        }
+
+        // assigning score
+        $score = 0;
+        if ($position === 1) {
+            $score += 3;
+        }
+        if ($position === 2) {
+            $score += 2;
+        }
+        if ($position === 3) {
+            $score += 1;
+        }
+
+        $s = $this->db->prepare("UPDATE `results` SET `result_found` = 'Y', `result_position` = '$position', `result_score` = '$score', `result_found_on` = :dt WHERE `result_id` = :i");
+        $current_date = current_date();
+        $s->bindParam(":i", $result_id);
+        $s->bindParam(":dt", $current_date);
+
+        if ($s->execute()) {
+
+            if ($position === 1) {
+                $s = $this->db->prepare("UPDATE `rounds` SET `round_status` = 'E' WHERE `round_id` = :r");
+                $s->bindParam(":r", $results[0]['round_id']);
+                $s->execute();
+                return $this->result(true, "Result has been updated and round is over!");
+            }
+
+            return $this->result(true, "Result has been updated");
+        }
+
+        return $this->result(false, "Couldn't update the result");
+    }
+
+    public function get_result_by ($column, $value, $multiple = false)  {
+        $s = $this->db->prepare("SELECT * FROM `results` rs JOIN `rounds` ro ON rs.result_round_id = ro.round_id JOIN `players` pl ON rs.result_player_id = pl.player_id  WHERE `$column` = :v");
         $s->bindParam(":v", $value);
         if ($s->execute()) {
             if ($multiple) {
@@ -180,12 +246,31 @@ class Profile
 
     public function get_all_games($team_id)
     {
-        $s = $this->db->prepare("SELECT * FROM `games` WHERE `game_team_id` = :t");
+        $s = $this->db->prepare("SELECT * FROM `games` WHERE `game_team_id` = :t ORDER BY `game_id` DESC");
         $s->bindParam(":t", $team_id);
         if ($s->execute()) {
             return $s->fetchAll();
         }
         return [];
+    }
+
+    public function player_score($player_id)
+    {
+        $s = $this->db->prepare("SELECT * FROM `results` WHERE `result_player_id` = :pid");
+        $s->bindParam(":pid", $player_id);
+
+        if ($s->execute() && $s->rowCount() > 0) {
+            
+            $rows = $s->fetchAll();
+            $score = 0;
+            foreach ($rows as $row) {
+                if ($row['result_score'] && $row['result_score'] > 0) {
+                    $score += $row['result_score']; 
+                }
+            }
+            return $score;
+        }
+        return 0;
     }
 
     public function add_game($team_id)
