@@ -19,13 +19,13 @@ class User
         return $this->result(true, normal_text($email));
     }
 
-    public function validate_password ($password)
+    public function validate_password ($password, $password_type = "password")
     {
         if (!is_string($password) || empty(normal_text($password))) {
-            return $this->result(false, "password cannot be empty!");
+            return $this->result(false, "$password_type cannot be empty!");
         }
         if (strlen($password) < 4) {
-            return $this->result(false, "password must be 4 characters long!");
+            return $this->result(false, "$password_type must be 4 characters long!");
         }
         return $this->result(true, normal_text($password));
     }

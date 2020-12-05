@@ -32,8 +32,9 @@
             </div>
             <div class="">
                 <?php if ($logged): ?>
-                    <a href="<?=URL?>/dashboard" class="btn btn-secondary">dashboard</a>
-                    <a href="<?=URL?>/logout" class="btn">logout</a>
+                    <a href="<?=URL?>/settings" class="btn"><i class="fa fa-cogs"></i> settings</a>
+                    <a href="<?=URL?>/dashboard" class="btn btn-secondary"><i class="fa fa-th-large"></i> dashboard</a>
+                    <a href="<?=URL?>/logout" class="btn"><i class="fa fa-sign-out"></i> logout</a>
                 <?php else: ?>
                     <a href="<?=URL?>/" class="btn">login</a>
                     <a href="<?=URL?>/signup" class="btn btn-secondary">signup</a>

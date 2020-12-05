@@ -2,7 +2,7 @@
     <div class="col-12">
         <div class="border-bottom pt-2 pb-2 mb-2">
             <h3 class="text-center font-weight-light">
-                Login to <strong>Panel</strong>
+                Forgot Password? <strong>Not a problem!</strong>
             </h3>
         </div>
     </div>
@@ -34,21 +34,8 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="password">Password</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-key"></i></span>
-                            </div>
-                            <input type="password" class="form-control" name="password" id="password" placeholder="Password" value="<?=$_POST['password']??''?>">
-                        </div>
-                    </div>
-
-
-                    <button type="submit" class="btn btn-primary btn-block">Login </button>
+                    <button type="submit" class="btn btn-primary btn-block">Send Link</button>
                 </form>
-
-                <a href="<?=URL?>/forgot" class="p-2 mt-4 d-block text-center">Forgot password? Reset it.</a>
 
             </div>
         </div>

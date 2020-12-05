@@ -75,6 +75,36 @@ class Auth
         return $this->result(false, "Could not insert data");
     }
 
+    public function save_profile($name, $email, $user_id)
+    {
+        $s = $this->db->prepare("UPDATE `users` SET `user_email` = :e, `user_name` = :n WHERE `user_id` = :i");
+
+        $s->bindParam(":e", $email);
+        $s->bindParam(":n", $name);
+        $s->bindParam(":i", $user_id);
+
+        if ($s->execute()) {
+            return $this->result(true);
+        }
+        return $this->result(false, "Could not update data");
+    }
+
+    public function save_password($password, $user_id)
+    {
+        $password = password_hash($password, PASSWORD_BCRYPT);
+        
+        $s = $this->db->prepare("UPDATE `users` SET `user_password` = :p WHERE `user_id` = :i");
+
+        $s->bindParam(":p", $password);
+        $s->bindParam(":i", $user_id);
+
+        if ($s->execute()) {
+            return $this->result(true);
+        }
+        return $this->result(false, "Could not update data");
+
+    }
+
     public function logout ()
     {
         unset($_SESSION['logged']);
