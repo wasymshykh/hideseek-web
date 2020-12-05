@@ -102,7 +102,52 @@ class Auth
             return $this->result(true);
         }
         return $this->result(false, "Could not update data");
+    }
 
+    public function reset_request($user_id)
+    {
+        $unique_code = $this->generateRandomString();
+
+        $s = $this->db->prepare("INSERT INTO `reset_requests` (`reset_user_id`, `reset_code`, `reset_created`) VALUE (:i, :c, :dt)");
+
+        $s->bindParam(":i", $user_id);
+        $s->bindParam(":c", $unique_code);
+
+        $current_date = current_date();
+        $s->bindParam(":dt", $current_date);
+
+        if ($s->execute()) {
+            return $this->result(true, $unique_code);
+        }
+        return $this->result(false, "Could not process the request");
+    }
+
+    private function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+    public function change_code_status($code, $status)
+    {
+        $s = $this->db->prepare("UPDATE `reset_requests` SET `reset_status` = :s WHERE `reset_code` = :c");
+        $s->bindParam(":s", $status);
+        $s->bindParam(":c", $code);
+        $s->execute();
+    }
+
+    public function get_reset_code($code)
+    {
+        $s = $this->db->prepare("SELECT * FROM `reset_requests` WHERE `reset_code` = :c AND `reset_status` = 'A'");
+        $s->bindParam(":c", $code);
+        if ($s->execute()) {
+            return $s->fetch();
+        }
+        return false;
     }
 
     public function logout ()
