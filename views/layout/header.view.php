@@ -14,6 +14,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script src="<?=URL?>/static/js/jquery-3.5.1.min.js"></script>
+
+    <?php if (isset($select2)): ?>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <?php endif; ?>
+
 </head>
 <body>
 
