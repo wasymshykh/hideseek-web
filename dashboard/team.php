@@ -69,7 +69,80 @@ if (isset($_POST) && !empty($_POST)) {
             $error = "No game found!";
         }
 
-    } 
+    }
+
+    if (isset($_POST['end_game']) && is_numeric($_POST['end_game']) && !empty($_POST['end_game'])) {
+
+        $_game = $profile->get_game_by('game_id', normal_text($_POST['end_game']));
+        
+        if ($_game && !empty($_game)) {
+
+            $rounds = $profile->get_round_by('round_game_id', $_game['game_id'], true) ?? [];
+            
+            $result = $profile->end_rounds($_game['game_id']);
+            if (!$result['status']) {
+                $error = $result['message'];
+            }
+
+            if (!$error) {
+                // end game
+                $result = $profile->end_game($_game['game_id']);
+                if ($result['status']) {
+                    $_SESSION['status'] = ['type' => 'success', 'message' => $result['message']]; 
+                    go(URL . '/dashboard/team?team=' . $team['team_id']);
+                }
+                $error = $result['message'];
+            }
+
+        } else {
+            $error = "No game found!";
+        }
+    }
+
+    if (isset($_POST['create_player'])) {
+
+        if (isset($_POST['player']) && is_string($_POST['player']) && !empty(normal_text($_POST['player']))) {
+
+            $result = $profile->add_player(normal_text($_POST['player']), $team['team_id']);
+            if ($result['status']) {
+                $_SESSION['status'] = ['type' => 'success', 'message' => $result['message']]; 
+                go(URL . '/dashboard/team?team=' . $team['team_id']);
+            }
+            $error = $result['message'];
+            
+        } else {
+            $error = "Sorry, player name cannot be empty";
+        }
+
+    }
+
+    if (isset($_POST['rename_player']) && is_numeric($_POST['rename_player']) && !empty($_POST['rename_player'])) {
+
+        if (isset($_POST['rplayer']) && is_string($_POST['rplayer']) && !empty(normal_text($_POST['rplayer']))) {
+
+            $result = $profile->rename_player(normal_text($_POST['rplayer']), normal_text($_POST['rename_player']), $team['team_id']);
+            if ($result['status']) {
+                $_SESSION['status'] = ['type' => 'success', 'message' => $result['message']]; 
+                go(URL . '/dashboard/team?team=' . $team['team_id']);
+            }
+            $error = $result['message'];
+            
+        } else {
+            $error = "Sorry, player name cannot be empty";
+        }
+
+    }
+
+    if (isset($_POST['delete_player']) && is_numeric($_POST['delete_player']) && !empty($_POST['delete_player'])) {
+
+        $result = $profile->delete_player(normal_text($_POST['delete_player']), $team['team_id']);
+        if ($result['status']) {
+            $_SESSION['status'] = ['type' => 'success', 'message' => $result['message']]; 
+            go(URL . '/dashboard/team?team=' . $team['team_id']);
+        }
+        $error = $result['message'];
+
+    }
 
 }
 

@@ -55,7 +55,7 @@ class Profile
 
     public function get_team_players ($team_id)
     {
-        $s = $this->db->prepare("SELECT * FROM `players` WHERE `player_team_id` = :t");
+        $s = $this->db->prepare("SELECT * FROM `players` WHERE `player_team_id` = :t AND `player_status` = 'A'");
         $s->bindParam(":t", $team_id);
         if ($s->execute()) {
             return $s->fetchAll();
@@ -155,6 +155,45 @@ class Profile
 
     }
 
+    public function add_player($name, $team_id)
+    {
+        $q = "INSERT INTO `players` (`player_team_id`, `player_name`, `player_created`) VALUE (:t, :n, :dt)";
+        $s = $this->db->prepare($q);
+        $s->bindParam(":t", $team_id);
+        $s->bindParam(":n", $name);
+        $datetime = current_date();
+        $s->bindParam(":dt", $datetime);
+        if ($s->execute()) {
+            return $this->result(true, "Player has been added!");
+        }
+        return $this->result(false, "Player cannot be added.");
+    }
+
+    public function rename_player($name, $player_id, $team_id)
+    {
+        $q = "UPDATE `players` SET `player_name` = :n WHERE `player_id` = :i AND `player_team_id` = :t";
+        $s = $this->db->prepare($q);
+        $s->bindParam(":n", $name);
+        $s->bindParam(":i", $player_id);
+        $s->bindParam(":t", $team_id);
+        if ($s->execute()) {
+            return $this->result(true, "Player name has been updated!");
+        }
+        return $this->result(false, "Player name cannot be updated.");
+    }
+
+    public function delete_player($player_id, $team_id)
+    {
+        $q = "UPDATE `players` SET `player_status` = 'D' WHERE `player_id` = :i AND `player_team_id` = :t";
+        $s = $this->db->prepare($q);
+        $s->bindParam(":i", $player_id);
+        $s->bindParam(":t", $team_id);
+        if ($s->execute()) {
+            return $this->result(true, "Player has been deleted!");
+        }
+        return $this->result(false, "Player cannot be deleted.");
+    }
+
     public function get_all_games_rounds($team_id)
     {
         $games = $this->get_all_games($team_id);
@@ -185,7 +224,6 @@ class Profile
         $available = false;
         foreach ($results as $result) {
             if ($result['result_id'] === $result_id) {
-                
                 if ($result['result_found'] === 'Y') {
                     return $this->result(false, "You already found this player.");
                 }
@@ -230,6 +268,30 @@ class Profile
         }
 
         return $this->result(false, "Couldn't update the result");
+    }
+
+    public function end_rounds($game_id)
+    {
+        $s = $this->db->prepare("UPDATE `rounds` SET `round_status` = 'E' WHERE `round_game_id` = :g AND `round_status` = 'A'");
+        $s->bindParam(":g", $game_id);
+
+        if ($s->execute()) {
+            return $this->result(true);
+        }
+        return $this->result(false, "Rounds cannot be updated");
+    }
+
+    public function end_game($game_id)
+    {
+        $s = $this->db->prepare("UPDATE `games` SET `game_status` = 'E', `game_ended` = :dt WHERE `game_id` = :g AND `game_status` = 'A'");
+        $current_date = current_date();
+        $s->bindParam(":dt", $current_date);
+        $s->bindParam(":g", $game_id);
+
+        if ($s->execute()) {
+            return $this->result(true, "Game-ID#".$game_id." has been updated");
+        }
+        return $this->result(false, "Game-ID#".$game_id." cannot be updated");
     }
 
     public function get_result_by ($column, $value, $multiple = false)  {
