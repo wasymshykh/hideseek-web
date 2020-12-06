@@ -94,9 +94,9 @@ class Profile
             $s->bindParam(":dt", $datetime);
 
             if ($s->execute()) {
-                return $this->result(true, "Round have been added!");
+                return ['status' => true, 'message' => "Round has been started!", 'round_id' => $round_id];
             } else {
-                return $this->result(true, "Round added, couldn't add players");
+                return ['status' => true, 'message' => "Round added, couldn't add players", 'round_id' => $round_id];
             }
 
         }

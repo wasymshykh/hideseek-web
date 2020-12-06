@@ -39,11 +39,21 @@ if (isset($_POST) && !empty($_POST)) {
         $result = $profile->add_game($team['team_id']);
 
         if ($result['status']) {
-            $_SESSION['status'] = ['type' => 'success', 'message' => "Game has been added successfully! Game-ID #" . $result['message']]; 
-            go(URL . '/dashboard/team?team=' . $team['team_id']);
+            $players = $profile->get_team_players($team['team_id']);
+            
+            if ($result['status']) {
+                $result = $profile->add_round($result['message'], 1, $players);
+                if ($result['status']) {
+                    $_SESSION['status'] = ['type' => 'success', 'message' => $result['message']]; 
+                    go(URL . '/dashboard/round?round=' . $result['round_id']);
+                }
+            }
+
+            $error = "Game added but couldn't add the round";
+        } else {
+            $error = $result['message'];
         }
 
-        $error = $result['message'];
     }
 
     if (isset($_POST['add_round']) && is_numeric($_POST['add_round']) && !empty($_POST['add_round']) ) {
@@ -59,7 +69,7 @@ if (isset($_POST) && !empty($_POST)) {
 
             if ($result['status']) {
                 $_SESSION['status'] = ['type' => 'success', 'message' => $result['message']]; 
-                go(URL . '/dashboard/team?team=' . $team['team_id']);
+                go(URL . '/dashboard/round?round=' . $result['round_id']);
             }
 
             $error = "Couldn't add the round";
