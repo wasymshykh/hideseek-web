@@ -154,6 +154,15 @@ if (isset($_POST) && !empty($_POST)) {
 
     }
 
+    if (isset($_POST['remove_games'])) {
+        $games = $profile->get_all_games_rounds($team['team_id']);
+        $result = $profile->delete_games($games);
+        if ($result['status']) {
+            $_SESSION['status'] = ['type' => 'success', 'message' => $result['message']]; 
+            go(URL . '/dashboard/team?team=' . $team['team_id']);
+        }
+    }
+
 }
 
 

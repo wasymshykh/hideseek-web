@@ -72,12 +72,20 @@
                             <div class="col">
                                 <h6 class="my-0 text-left font-weight-bolder text-uppercase"><i class="fa fa-gamepad"></i> Games</h6>
                             </div>
-                            <div>
+                            <div class="mr-2">
                                 <form action="" class="my-0" method="post">
                                     <button class="btn btn-sm btn-primary">
                                         <i class="fa fa-plus"></i> Add a new game
                                     </button>
                                     <input type="hidden" name="add_game">
+                                </form>
+                            </div>
+                            <div>
+                                <form action="" class="my-0" method="post">
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="fa fa-trash"></i> Remove all Games
+                                    </button>
+                                    <input type="hidden" name="remove_games">
                                 </form>
                             </div>
                         </div>

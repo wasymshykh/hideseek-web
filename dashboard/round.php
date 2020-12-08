@@ -42,8 +42,20 @@ if (isset($_POST) && !empty($_POST)) {
         $_result = $profile->player_found(normal_text($_POST['found']), $results);
 
         if ($_result['status']) {
-            $_SESSION['status'] = ['type' => 'success', 'message' => $_result['message']]; 
-            go(URL . '/dashboard/round?round=' . $round['round_id']);
+            if (isset($_result['ended'])) {
+                $players = $profile->get_team_players($round['team_id']);
+                
+                $result = $profile->add_round($round['game_id'], $_result['ended'] + 1, $players);
+
+                if ($result['status']) {
+                    $_SESSION['status'] = ['type' => 'success', 'message' => $_result['message']];
+                    go(URL . '/dashboard/round?round=' . $result['round_id']);
+                }
+
+            } else {
+                $_SESSION['status'] = ['type' => 'success', 'message' => $_result['message']]; 
+                go(URL . '/dashboard/round?round=' . $round['round_id']);
+            }
         }
 
         $error = $_result['message'];

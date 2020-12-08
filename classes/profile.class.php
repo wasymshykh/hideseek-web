@@ -194,6 +194,20 @@ class Profile
         return $this->result(false, "Player cannot be deleted.");
     }
 
+    public function delete_games($games)
+    {
+        foreach ($games as $game) {
+            $rounds = $this->get_round_by('game_id', $game['game_id'],true);
+            foreach ($rounds as $round) {
+                $this->db->query("DELETE FROM `results` WHERE `result_round_id` = '".$round['round_id']."'");
+            }
+            $this->db->query("DELETE FROM `rounds` WHERE `round_game_id` = '".$game['game_id']."'");
+            $this->db->query("DELETE FROM `games` WHERE `game_id` = '".$game['game_id']."'");
+        }
+        
+        return $this->result(true, "Games have been deleted!");
+    }
+
     public function get_all_games_rounds($team_id)
     {
         $games = $this->get_all_games($team_id);
@@ -261,7 +275,7 @@ class Profile
                 $s = $this->db->prepare("UPDATE `rounds` SET `round_status` = 'E' WHERE `round_id` = :r");
                 $s->bindParam(":r", $results[0]['round_id']);
                 $s->execute();
-                return $this->result(true, "Result has been updated and round is over!");
+                return ['status'=>true, 'message'=>"Round #".($results[0]['round_number']+1)." started!", 'ended' => $results[0]['round_number']];
             }
 
             return $this->result(true, "Result has been updated");
